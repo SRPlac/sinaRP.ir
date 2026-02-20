@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>دریافت کد حذف تبلیغات</title>
+  <style>
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: system-ui, -apple-system, sans-serif;
+      background: linear-gradient(135deg, #e0f2fe 0%, #bfdbfe 50%, #93c5fd 100%);
+      color: #1e40af;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px 10px;
+      box-sizing: border-box;
+      position: relative;
+    }
+
+    h1 {
+      font-size: 1.55rem;
+      margin: 20px 0 35px;
+      text-align: center;
+      color: #1e3a8a;
+      line-height: 1.4;
+    }
+
+    .ads-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+      justify-content: center;
+      max-width: 620px;
+      margin-bottom: 30px;
+    }
+
+    .ad-box {
+      width: calc(50% - 10px);
+      max-width: 280px;
+      height: 200px;
+      background: rgba(255, 255, 255, 0.78);
+      border: 2px dashed #60a5fa;
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.15rem;
+      color: #2563eb;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 3px 10px rgba(0,0,0,0.07);
+      user-select: none;
+      text-align: center;
+      padding: 0 10px;
+      box-sizing: border-box;
+    }
+
+    .ad-box:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 6px 16px rgba(0,0,0,0.1);
+      border-color: #3b82f6;
+    }
+
+    .ad-box.checking {
+      background: rgba(254, 249, 195, 0.75);
+      border-color: #f59e0b;
+      color: #92400e;
+      cursor: wait;
+    }
+
+    .ad-box.clicked {
+      background: rgba(220, 252, 231, 0.82);
+      border: 2px solid #22c55e;
+      color: #166534;
+      cursor: default;
+      transform: none;
+      box-shadow: 0 4px 12px rgba(34,197,94,0.25);
+    }
+
+    /* overlay برای کد جایزه */
+    #reward-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.45);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+      backdrop-filter: blur(4px);
+    }
+
+    #reward-box {
+      background: rgba(255, 255, 255, 0.96);
+      border-radius: 20px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.25);
+      padding: 32px 40px;
+      text-align: center;
+      max-width: 90%;
+      width: 360px;
+      border: 3px solid #60a5fa;
+      position: relative;
+    }
+
+    #reward-box strong {
+      color: #1d4ed8;
+      font-size: 1.8rem;
+      display: block;
+      margin-bottom: 16px;
+    }
+
+    #code {
+      font-family: monospace;
+      font-size: 2.1rem;
+      color: #111827;
+      background: #f3f4f6;
+      padding: 12px 24px;
+      border-radius: 12px;
+      margin: 16px 0;
+      display: inline-block;
+      letter-spacing: 1px;
+    }
+
+    #copy-btn {
+      background: #3b82f6;
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 8px;
+      font-size: 1.1rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      margin-top: 10px;
+      font-weight: 500;
+    }
+
+    #copy-btn:hover {
+      background: #2563eb;
+    }
+
+    #copy-btn:active {
+      background: #1d4ed8;
+    }
+
+    #copy-btn.copied {
+      background: #22c55e;
+    }
+
+    .close-btn {
+      position: absolute;
+      top: 12px;
+      left: 12px;
+      font-size: 1.6rem;
+      color: #6b7280;
+      cursor: pointer;
+      background: none;
+      border: none;
+      padding: 0;
+      line-height: 1;
+      width: 30px;
+      height: 30px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      transition: background 0.2s;
+    }
+
+    .close-btn:hover {
+      background: rgba(107, 114, 128, 0.2);
+      color: #374151;
+    }
+
+    @media (max-width: 480px) {
+      .ad-box {
+        height: 180px;
+        font-size: 1rem;
+        padding: 0 8px;
+      }
+      
+      #reward-box {
+        width: 320px;
+        padding: 28px 32px;
+      }
+      
+      #code {
+        font-size: 1.8rem;
+        padding: 10px 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <h1>برای دریافت کد حذف تبلیغات<br>روی دو تبلیغ زیر کلیک کنید</h1>
+
+  <div class="ads-container">
+    <div id="ad1" class="ad-box" data-ad="1">
+      تبلیغ شماره ۱<br>کلیک کنید
+    </div>
+
+    <div id="ad2" class="ad-box" data-ad="2">
+      تبلیغ شماره ۲<br>کلیک کنید
+    </div>
+  </div>
+
+  <!-- لایه کد جایزه (روی کل صفحه) -->
+  <div id="reward-overlay">
+    <div id="reward-box">
+      <button class="close-btn" onclick="closeReward()">×</button>
+      <strong>تبریک! کد حذف تبلیغات شما:</strong>
+      <div id="code">sinaggdell (private)</div>
+      <button id="copy-btn" onclick="copyCode()">کپی کد</button>
+    </div>
+  </div>
+
+  <script>
+    let clicked = new Set();
+    let checking = new Set();
+
+    function checkReward() {
+      if (clicked.size === 2) {
+        document.getElementById('reward-overlay').style.display = 'flex';
+      }
+    }
+
+    function closeReward() {
+      document.getElementById('reward-overlay').style.display = 'none';
+    }
+
+    function copyCode() {
+      const codeElement = document.getElementById('code');
+      const code = codeElement.textContent;
+      const btn = document.getElementById('copy-btn');
+
+      navigator.clipboard.writeText(code).then(() => {
+        const originalText = btn.textContent;
+        btn.textContent = 'کپی شد ✓';
+        btn.classList.add('copied');
+
+        setTimeout(() => {
+          btn.textContent = originalText;
+          btn.classList.remove('copied');
+        }, 2000);
+      }).catch(err => {
+        console.error('خطا در کپی: ', err);
+        alert('خطا در کپی کد! لطفاً دستی کپی کنید.');
+      });
+    }
+
+    function handleClick(adId, element) {
+      if (clicked.has(adId) || checking.has(adId)) return;
+
+      checking.add(adId);
+      element.classList.add('checking');
+      element.innerHTML = 'در حال بررسی ...';
+
+      setTimeout(() => {
+        checking.delete(adId);
+        clicked.add(adId);
+        element.classList.remove('checking');
+        element.classList.add('clicked');
+        element.innerHTML = 'کلیک شد ✓';
+
+        // لینک تبلیغ (اختیاری)
+        // if (adId === 1) window.open('https://example.com/ad1', '_blank');
+        // if (adId === 2) window.open('https://example.com/ad2', '_blank');
+
+        checkReward();
+      }, 10000); // 10 ثانیه
+    }
+
+    document.getElementById('ad1').addEventListener('click', function() {
+      handleClick(1, this);
+    });
+
+    document.getElementById('ad2').addEventListener('click', function() {
+      handleClick(2, this);
+    });
+  </script>
+
+</body>
+</html>
